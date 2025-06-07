@@ -1,10 +1,10 @@
 {
   "name": "corenz-backend",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "src/index.js",
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js"
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
