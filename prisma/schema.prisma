@@ -50,3 +50,13 @@ model OffboardingTask {
   task      String
   completed Boolean @default(false)
 }
+
+model Employee {
+  id         Int      @id @default(autoincrement())
+  name       String
+  phone      String
+  department String
+  jobRole    String
+  createdAt  DateTime @default(now())
+}
+
