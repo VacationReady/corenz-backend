@@ -3,13 +3,14 @@ const express = require('express');
 const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
 
-// Route imports
-const authRoutes = require('../routes/auth');
-const userRoutes = require('../routes/users');
-const leaveRoutes = require('../routes/leave');
-const onboardingRoutes = require('../routes/onboarding');
-const offboardingRoutes = require('../routes/offboarding');
-const auditRoutes = require('../routes/audit');
+// Route imports (corrected paths)
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const leaveRoutes = require('./routes/leave');
+const onboardingRoutes = require('./routes/onboarding');
+const offboardingRoutes = require('./routes/offboarding');
+const auditRoutes = require('./routes/audit');
+const employeeRoutes = require('./routes/employees'); // ✅ NEW
 
 const app = express();
 const prisma = new PrismaClient();
@@ -28,6 +29,7 @@ app.use('/api/leave', leaveRoutes);
 app.use('/api/onboarding', onboardingRoutes);
 app.use('/api/offboarding', offboardingRoutes);
 app.use('/api/audit', auditRoutes);
+app.use('/api/employees', employeeRoutes); // ✅ NEW
 
 // Start server
 const PORT = process.env.PORT || 5000;
