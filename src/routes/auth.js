@@ -2,9 +2,8 @@ const express = require("express");
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-  const { email, password } = req.body;
-
   const prisma = req.app.get("prisma");
+  const { email, password } = req.body;
 
   try {
     const user = await prisma.user.findFirst({
