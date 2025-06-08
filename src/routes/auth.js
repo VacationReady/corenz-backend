@@ -1,13 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../db"); // or your Prisma instance if not using raw SQL
 
 router.post("/", async (req, res) => {
   const { email, password } = req.body;
 
+  const prisma = req.app.get("prisma");
+
   try {
-    const result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
-    const user = result.rows[0];
+    const user = await prisma.user.findFirst({
+      where: { email },
+    });
 
     if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
