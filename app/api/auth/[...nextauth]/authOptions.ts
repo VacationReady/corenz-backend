@@ -1,37 +1,70 @@
-// app/api/auth/authOptions.ts
-import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import type { NextAuthOptions } from "next-auth";
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "text" },
+        email: { label: "Email", type: "email", placeholder: "you@example.com" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // TEMP: Replace this with your real DB check
-        if (
-          credentials?.email === "admin@example.com" &&
-          credentials?.password === "password123"
-        ) {
-          return { id: "1", name: "Admin", email: "admin@example.com" };
+        const { email, password } = credentials ?? {};
+
+        try {
+          const res = await fetch("https://corenz-backend-production.up.railway.app/api/auth", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+
+          if (!res.ok) {
+            console.error("Login failed:", await res.text());
+            return null;
+          }
+
+          const user = await res.json();
+
+          if (user && user.id) {
+            return {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+            };
+          }
+
+          return null;
+        } catch (error) {
+          console.error("Auth exception:", error);
+          return null;
         }
-        return null;
       },
     }),
   ],
+
   pages: {
-    signIn: "/login", // Optional: custom login page
+    signIn: "/login",
   },
+
   session: {
     strategy: "jwt",
   },
+
   callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.name = user.name;
+        token.email = user.email;
+      }
+      return token;
+    },
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.sub;
+      if (token && session.user) {
+        session.user.id = token.id as string;
+        session.user.name = token.name as string;
+        session.user.email = token.email as string;
       }
       return session;
     },
