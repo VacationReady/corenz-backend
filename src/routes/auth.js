@@ -1,15 +1,16 @@
-app.post("/api/auth", async (req, res) => {
+const express = require("express");
+const router = express.Router();
+const db = require("../db"); // or your Prisma instance if not using raw SQL
+
+router.post("/", async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
     const user = result.rows[0];
 
-    if (!user) {
-      return res.status(401).json({ error: "Invalid credentials" });
-    }
+    if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
-    // Later: use bcrypt.compare() here
     if (user.password === password) {
       return res.json({
         id: user.id,
@@ -24,3 +25,5 @@ app.post("/api/auth", async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
+
+module.exports = router;
