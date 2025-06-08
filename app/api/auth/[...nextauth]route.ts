@@ -6,39 +6,42 @@ export const authOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "text", placeholder: "email@example.com" },
+        email: { label: "Email", type: "text", placeholder: "you@example.com" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         const { email, password } = credentials ?? {};
 
-        // 🔒 Replace this logic with your real user auth (e.g. Railway DB/API)
-        const user = {
-          id: "1",
-          name: "Michael",
-          email: "michael@example.com",
-        };
+        try {
+          const res = await fetch("https://corenz-backend-production.up.railway.app/api/auth", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
 
-        const isValid =
-          email === "michael@example.com" && password === "password123";
+          if (!res.ok) {
+            console.error("Auth failed:", await res.text());
+            return null;
+          }
 
-        if (isValid) {
-          return user;
+          const user = await res.json();
+
+          // Must return an object with at least an id
+          if (user && user.id) {
+            return {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+            };
+          }
+
+          return null;
+        } catch (error) {
+          console.error("Auth exception:", error);
+          return null;
         }
-
-        return null;
       },
     }),
-
-    // ✅ Keep these if you already had them
-    // GoogleProvider({
-    //   clientId: process.env.GOOGLE_CLIENT_ID!,
-    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    // }),
-    // MicrosoftProvider({
-    //   clientId: process.env.MICROSOFT_CLIENT_ID!,
-    //   clientSecret: process.env.MICROSOFT_CLIENT_SECRET!,
-    // }),
   ],
 
   pages: {
